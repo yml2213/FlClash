@@ -480,17 +480,16 @@ class _ScriptContent extends ConsumerWidget {
   }
 }
 
-class _EditGlobalAddedRules extends ConsumerStatefulWidget {
+class _EditGlobalAddedRules extends StatefulWidget {
   final int profileId;
 
   const _EditGlobalAddedRules({required this.profileId});
 
   @override
-  ConsumerState<_EditGlobalAddedRules> createState() =>
-      _EditGlobalAddedRulesState();
+  State<_EditGlobalAddedRules> createState() => _EditGlobalAddedRulesState();
 }
 
-class _EditGlobalAddedRulesState extends ConsumerState<_EditGlobalAddedRules> {
+class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
   Future<void> _handleAddOrUpdate([Rule? rule]) async {
     final res = await globalState.showCommonDialog<Rule>(
       child: AddOrEditRuleDialog(rule: rule),
@@ -498,16 +497,19 @@ class _EditGlobalAddedRulesState extends ConsumerState<_EditGlobalAddedRules> {
     if (res == null) {
       return;
     }
-    ref.read(globalRulesProvider.notifier).put(res);
+    // ignore: use_build_context_synchronously
+    context.read(globalRulesProvider.notifier).put(res);
   }
 
-  void _handleChange(WidgetRef ref, bool status, int ruleId) {
+  void _handleChange(bool status, int ruleId) {
     if (status) {
-      ref
+      // ignore: use_build_context_synchronously
+      context
           .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
           .put(ruleId);
     } else {
-      ref
+      // ignore: use_build_context_synchronously
+      context
           .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
           .del(ruleId);
     }
@@ -528,60 +530,64 @@ class _EditGlobalAddedRulesState extends ConsumerState<_EditGlobalAddedRules> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final disabledRuleIds =
-        ref.watch(profileDisabledRuleIdsProvider(widget.profileId)).value ?? [];
-    final rules = ref.watch(globalRulesProvider).value ?? [];
-    return BaseScaffold(
-      title: appLocalizations.editGlobalRules,
-      actions: [
-        CommonMinFilledButtonTheme(
-          child: FilledButton.tonal(
-            onPressed: () {
-              _handleAddOrUpdate();
-            },
-            child: Text(appLocalizations.add),
-          ),
-        ),
-        SizedBox(width: 8),
-      ],
-      body: rules.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  NullStatus(
-                    label: appLocalizations.nullTip(appLocalizations.rule),
-                    illustration: RuleEmptyIllustration(),
-                  ),
-                  SizedBox(height: 24),
-                  _buildAddButton(),
-                ],
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final disabledRuleIds =
+            ref.watch(profileDisabledRuleIdsProvider(widget.profileId)).value ?? [];
+        final rules = ref.watch(globalRulesProvider).value ?? [];
+        return BaseScaffold(
+          title: appLocalizations.editGlobalRules,
+          actions: [
+            CommonMinFilledButtonTheme(
+              child: FilledButton.tonal(
+                onPressed: () {
+                  _handleAddOrUpdate();
+                },
+                child: Text(appLocalizations.add),
               ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: _buildAddButton(),
-                    ),
-                  );
-                }
-                final rule = rules[index - 1];
-                return RuleStatusItem(
-                  status: !disabledRuleIds.contains(rule.id),
-                  rule: rule,
-                  onChange: (status) {
-                    _handleChange(ref, !status, rule.id);
-                  },
-                );
-              },
-              itemCount: rules.length + 1,
             ),
+            SizedBox(width: 8),
+          ],
+          body: rules.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      NullStatus(
+                        label: appLocalizations.nullTip(appLocalizations.rule),
+                        illustration: RuleEmptyIllustration(),
+                      ),
+                      SizedBox(height: 24),
+                      _buildAddButton(),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: _buildAddButton(),
+                        ),
+                      );
+                    }
+                    final rule = rules[index - 1];
+                    return RuleStatusItem(
+                      status: !disabledRuleIds.contains(rule.id),
+                      rule: rule,
+                      onChange: (status) {
+                        _handleChange(!status, rule.id);
+                      },
+                    );
+                  },
+                  itemCount: rules.length + 1,
+                ),
+        );
+      },
     );
   }
 }
