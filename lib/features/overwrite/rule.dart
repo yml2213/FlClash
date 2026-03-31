@@ -194,6 +194,7 @@ class _AddOrEditRuleDialogState extends State<AddOrEditRuleDialog> {
                               title: appLocalizations.ruleName,
                               options: RuleAction.addedRuleActions,
                               textBuilder: (item) => item.value,
+                              descriptionBuilder: (item) => item.description,
                               value: _ruleAction,
                             ),
                           ) ??

@@ -394,6 +394,42 @@ extension RuleActionExt on RuleAction {
     RuleAction.IP_SUFFIX,
     RuleAction.RULE_SET,
   ].contains(this);
+
+  String get description => switch (this) {
+    RuleAction.DOMAIN => '精确匹配完整域名',
+    RuleAction.DOMAIN_SUFFIX => '匹配域名后缀（含子域名）',
+    RuleAction.DOMAIN_KEYWORD => '匹配域名中包含的关键词',
+    RuleAction.DOMAIN_REGEX => '使用正则表达式匹配域名',
+    RuleAction.GEOSITE => '根据地理位置站点库匹配域名',
+    RuleAction.IP_CIDR => '根据 CIDR 范围匹配 IPv4 地址',
+    RuleAction.IP_CIDR6 => '根据 CIDR 范围匹配 IPv6 地址',
+    RuleAction.IP_SUFFIX => '根据 IP 后缀匹配地址',
+    RuleAction.IP_ASN => '根据自治系统编号（ASN）匹配 IP',
+    RuleAction.GEOIP => '根据地理位置数据库匹配 IP',
+    RuleAction.SRC_GEOIP => '根据地理位置匹配源 IP',
+    RuleAction.SRC_IP_ASN => '根据 ASN 匹配源 IP',
+    RuleAction.SRC_IP_CIDR => '根据 CIDR 范围匹配源 IP',
+    RuleAction.SRC_IP_SUFFIX => '根据后缀匹配源 IP',
+    RuleAction.DST_PORT => '匹配目标端口',
+    RuleAction.SRC_PORT => '匹配源端口',
+    RuleAction.IN_PORT => '匹配入站监听端口',
+    RuleAction.IN_TYPE => '匹配入站类型（如 HTTP、SOCKS）',
+    RuleAction.IN_USER => '匹配入站认证用户名',
+    RuleAction.IN_NAME => '匹配入站监听器名称',
+    RuleAction.PROCESS_PATH => '匹配进程的完整文件路径',
+    RuleAction.PROCESS_PATH_REGEX => '使用正则表达式匹配进程路径',
+    RuleAction.PROCESS_NAME => '匹配进程名称',
+    RuleAction.PROCESS_NAME_REGEX => '使用正则表达式匹配进程名称',
+    RuleAction.UID => '根据用户 ID 匹配（Linux/macOS）',
+    RuleAction.NETWORK => '根据网络类型匹配（tcp/udp）',
+    RuleAction.DSCP => '根据 IP 头中的 DSCP 值匹配',
+    RuleAction.RULE_SET => '使用外部规则集文件匹配',
+    RuleAction.AND => '多个条件的逻辑与',
+    RuleAction.OR => '多个条件的逻辑或',
+    RuleAction.NOT => '对条件取逻辑非',
+    RuleAction.SUB_RULE => '应用子规则集',
+    RuleAction.MATCH => '匹配所有流量（兜底规则）',
+  };
 }
 
 enum OverrideRuleType { override, added }
