@@ -512,21 +512,6 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
     }
   }
 
-  Widget _buildAddButton(WidgetRef ref, {bool expanded = false}) {
-    final child = FilledButton.tonalIcon(
-      onPressed: () {
-        _handleAddOrUpdate(ref);
-      },
-      icon: const Icon(Icons.add),
-      label: Text(appLocalizations.addRule),
-    );
-    if (!expanded) {
-      return child;
-    }
-    return SizedBox(width: double.infinity, child: child);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
@@ -548,31 +533,15 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
           ],
           body: rules.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      NullStatus(
-                        label: appLocalizations.nullTip(appLocalizations.rule),
-                        illustration: RuleEmptyIllustration(),
-                      ),
-                      SizedBox(height: 24),
-                      _buildAddButton(ref),
-                    ],
+                  child: NullStatus(
+                    label: appLocalizations.nullTip(appLocalizations.rule),
+                    illustration: RuleEmptyIllustration(),
                   ),
                 )
               : ListView.builder(
                   padding: EdgeInsets.all(16),
                   itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: _buildAddButton(ref),
-                        ),
-                      );
-                    }
-                    final rule = rules[index - 1];
+                    final rule = rules[index];
                     return RuleStatusItem(
                       status: !disabledRuleIds.contains(rule.id),
                       rule: rule,
@@ -581,7 +550,7 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
                       },
                     );
                   },
-                  itemCount: rules.length + 1,
+                  itemCount: rules.length,
                 ),
         );
       },
