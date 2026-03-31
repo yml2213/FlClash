@@ -305,6 +305,13 @@ class ProfileItem extends StatelessWidget {
                                 _handlePreview(context);
                               },
                             ),
+                            PopupMenuItemData(
+                              icon: Icons.extension_outlined,
+                              label: appLocalizations.override,
+                              onPressed: () {
+                                _handlePushGenProfilePage(context, profile.id);
+                              },
+                            ),
                             if (profile.type == ProfileType.url) ...[
                               PopupMenuItemData(
                                 icon: Icons.sync_alt_sharp,
@@ -318,16 +325,6 @@ class ProfileItem extends StatelessWidget {
                               icon: Icons.emergency_outlined,
                               label: appLocalizations.more,
                               subItems: [
-                                PopupMenuItemData(
-                                  icon: Icons.extension_outlined,
-                                  label: appLocalizations.override,
-                                  onPressed: () {
-                                    _handlePushGenProfilePage(
-                                      context,
-                                      profile.id,
-                                    );
-                                  },
-                                ),
                                 // PopupMenuItemData(
                                 //   icon: Icons.extension_outlined,
                                 //   label: appLocalizations.override + "1",

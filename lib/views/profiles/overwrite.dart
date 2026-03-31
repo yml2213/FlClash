@@ -480,35 +480,98 @@ class _ScriptContent extends ConsumerWidget {
   }
 }
 
-class _EditGlobalAddedRules extends ConsumerWidget {
+class _EditGlobalAddedRules extends ConsumerStatefulWidget {
   final int profileId;
 
   const _EditGlobalAddedRules({required this.profileId});
 
+  @override
+  ConsumerState<_EditGlobalAddedRules> createState() =>
+      _EditGlobalAddedRulesState();
+}
+
+class _EditGlobalAddedRulesState extends ConsumerState<_EditGlobalAddedRules> {
+  Future<void> _handleAddOrUpdate([Rule? rule]) async {
+    final res = await globalState.showCommonDialog<Rule>(
+      child: AddOrEditRuleDialog(rule: rule),
+    );
+    if (res == null) {
+      return;
+    }
+    ref.read(globalRulesProvider.notifier).put(res);
+  }
+
   void _handleChange(WidgetRef ref, bool status, int ruleId) {
     if (status) {
-      ref.read(profileDisabledRuleIdsProvider(profileId).notifier).put(ruleId);
+      ref
+          .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
+          .put(ruleId);
     } else {
-      ref.read(profileDisabledRuleIdsProvider(profileId).notifier).del(ruleId);
+      ref
+          .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
+          .del(ruleId);
     }
+  }
+
+  Widget _buildAddButton({bool expanded = false}) {
+    final child = FilledButton.tonalIcon(
+      onPressed: () {
+        _handleAddOrUpdate();
+      },
+      icon: const Icon(Icons.add),
+      label: Text(appLocalizations.addRule),
+    );
+    if (!expanded) {
+      return child;
+    }
+    return SizedBox(width: double.infinity, child: child);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final disabledRuleIds =
-        ref.watch(profileDisabledRuleIdsProvider(profileId)).value ?? [];
+        ref.watch(profileDisabledRuleIdsProvider(widget.profileId)).value ?? [];
     final rules = ref.watch(globalRulesProvider).value ?? [];
     return BaseScaffold(
       title: appLocalizations.editGlobalRules,
+      actions: [
+        CommonMinFilledButtonTheme(
+          child: FilledButton.tonal(
+            onPressed: () {
+              _handleAddOrUpdate();
+            },
+            child: Text(appLocalizations.add),
+          ),
+        ),
+        SizedBox(width: 8),
+      ],
       body: rules.isEmpty
-          ? NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.rule),
-              illustration: RuleEmptyIllustration(),
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NullStatus(
+                    label: appLocalizations.nullTip(appLocalizations.rule),
+                    illustration: RuleEmptyIllustration(),
+                  ),
+                  SizedBox(height: 24),
+                  _buildAddButton(),
+                ],
+              ),
             )
           : ListView.builder(
               padding: EdgeInsets.all(16),
               itemBuilder: (context, index) {
-                final rule = rules[index];
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: _buildAddButton(),
+                    ),
+                  );
+                }
+                final rule = rules[index - 1];
                 return RuleStatusItem(
                   status: !disabledRuleIds.contains(rule.id),
                   rule: rule,
@@ -517,7 +580,7 @@ class _EditGlobalAddedRules extends ConsumerWidget {
                   },
                 );
               },
-              itemCount: rules.length,
+              itemCount: rules.length + 1,
             ),
     );
   }
