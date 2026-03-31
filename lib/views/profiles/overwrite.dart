@@ -490,35 +490,32 @@ class _EditGlobalAddedRules extends StatefulWidget {
 }
 
 class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
-  Future<void> _handleAddOrUpdate([Rule? rule]) async {
+  Future<void> _handleAddOrUpdate(WidgetRef ref, [Rule? rule]) async {
     final res = await globalState.showCommonDialog<Rule>(
       child: AddOrEditRuleDialog(rule: rule),
     );
     if (res == null) {
       return;
     }
-    // ignore: use_build_context_synchronously
-    context.read(globalRulesProvider.notifier).put(res);
+    ref.read(globalRulesProvider.notifier).put(res);
   }
 
-  void _handleChange(bool status, int ruleId) {
+  void _handleChange(WidgetRef ref, bool status, int ruleId) {
     if (status) {
-      // ignore: use_build_context_synchronously
-      context
+      ref
           .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
           .put(ruleId);
     } else {
-      // ignore: use_build_context_synchronously
-      context
+      ref
           .read(profileDisabledRuleIdsProvider(widget.profileId).notifier)
           .del(ruleId);
     }
   }
 
-  Widget _buildAddButton({bool expanded = false}) {
+  Widget _buildAddButton(WidgetRef ref, {bool expanded = false}) {
     final child = FilledButton.tonalIcon(
       onPressed: () {
-        _handleAddOrUpdate();
+        _handleAddOrUpdate(ref);
       },
       icon: const Icon(Icons.add),
       label: Text(appLocalizations.addRule),
@@ -542,7 +539,7 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
             CommonMinFilledButtonTheme(
               child: FilledButton.tonal(
                 onPressed: () {
-                  _handleAddOrUpdate();
+                  _handleAddOrUpdate(ref);
                 },
                 child: Text(appLocalizations.add),
               ),
@@ -559,7 +556,7 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
                         illustration: RuleEmptyIllustration(),
                       ),
                       SizedBox(height: 24),
-                      _buildAddButton(),
+                      _buildAddButton(ref),
                     ],
                   ),
                 )
@@ -571,7 +568,7 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: _buildAddButton(),
+                          child: _buildAddButton(ref),
                         ),
                       );
                     }
@@ -580,7 +577,7 @@ class _EditGlobalAddedRulesState extends State<_EditGlobalAddedRules> {
                       status: !disabledRuleIds.contains(rule.id),
                       rule: rule,
                       onChange: (status) {
-                        _handleChange(!status, rule.id);
+                        _handleChange(ref, !status, rule.id);
                       },
                     );
                   },
